@@ -11,7 +11,7 @@ class Board {
         }
 }
 class Knight {
-    constructor(board, location = [0,0]){
+    constructor(location = [0,0], board){
         {
             let playBoard;
             (!board)? playBoard = new Board() : board;
@@ -55,7 +55,26 @@ class Knight {
         }
 
         const yViable = this.exploreY(true);
-        console.log(viable,yViable)
+        
+        const knightMovement = [];
+        for (let i = 0; i < 2; i++){
+            const yVals = Object.values(yViable); 
+            yVals.forEach(element => {
+                const arr = [];
+                arr.push(
+                    Object.values(viable)[i], element
+                );
+                knightMovement.push(arr);
+            });
+        };
+
+        const xMovements = knightMovement.filter((set) => {
+           return (set[0] == null || set[1] == null)? false : true
+        })
+
+        console.log(xMovements)
+        return xMovements
+
     }
 
     exploreY(xPos){
@@ -83,5 +102,5 @@ class Knight {
     }
 }
 
-const first = new Knight();
+const first = new Knight([4,4]);
 first.exploreX();
