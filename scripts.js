@@ -32,19 +32,17 @@ class Knight {
     }
 
     exploreX(yPos){
-        let [left,right,yNow] = [undefined];
+        let [left,right] = [undefined];
         const viable = {
             left: null,
             right: null,
         };
         if(yPos){
-            left = yPos.left - 1;
-            right = yPos.right + 1;
-            yNow = yPos;
+            left = this.x - 1;
+            right = this.x + 1;
         } else {
             left = this.x - 2;
             right = this.x + 2;
-            yNow = this.y;
         }
         
         if(left >= 0) viable.left = left;
@@ -78,7 +76,7 @@ class Knight {
     }
 
     exploreY(xPos){
-        let [down,up,xNow] = [undefined];
+        let [down,up] = [undefined];
         const viable = {
             down: null,
             up: null
@@ -86,11 +84,9 @@ class Knight {
         if(xPos){
             down = this.y - 1;
             up = this.y + 1;
-            xNow = xPos;
         } else {
-            left = this.x - 2;
-            right = this.x + 2;
-            yNow = this.y;
+            down = this.y - 2;
+            up = this.y + 2;
         }
         
         if(down >= 0) viable.down = down;
@@ -99,8 +95,30 @@ class Knight {
         if(xPos){
             return viable
         }
+
+        const xViable = this.exploreX(true);
+
+        const knightMovement = [];
+        for (let i = 0; i < 2; i++){
+            const xVals = Object.values(xViable); 
+            xVals.forEach(element => {
+                const arr = [];
+                arr.push(
+                    element, Object.values(viable)[i]
+                );
+                knightMovement.push(arr);
+            });
+        };
+
+        const yMovements = knightMovement.filter((set) => {
+            return (set[0] == null || set[1] == null)? false : true
+         })
+ 
+         console.log(yMovements)
+         return yMovements
     }
 }
 
 const first = new Knight([4,4]);
 first.exploreX();
+first.exploreY()
