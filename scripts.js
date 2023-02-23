@@ -45,8 +45,8 @@ class Knight {
             right = this.x + 2;
         }
         
-        if(left >= 0) viable.left = left;
-        if(right <= 7) viable.right = right;
+        if(left >= 1) viable.left = left;
+        if(right <= 8) viable.right = right;
 
         if(yPos){
             return viable
@@ -70,7 +70,6 @@ class Knight {
            return (set[0] == null || set[1] == null)? false : true
         })
 
-        console.log(xMovements)
         return xMovements
 
     }
@@ -89,8 +88,8 @@ class Knight {
             up = this.y + 2;
         }
         
-        if(down >= 0) viable.down = down;
-        if(up <= 7) viable.up = up;
+        if(down >= 1) viable.down = down;
+        if(up <= 8) viable.up = up;
 
         if(xPos){
             return viable
@@ -114,11 +113,48 @@ class Knight {
             return (set[0] == null || set[1] == null)? false : true
          })
  
-         console.log(yMovements)
          return yMovements
+    }
+
+    exploreAxis(root){
+        const oldLocation = this.coords;
+        this.coords = root;
+        this.x = root[0]
+        this.y = root[1]
+        let a = this.exploreX();
+        const b = this.exploreY()
+        a = a.concat(b).sort((a,b) => a[0] - b[0]);
+        this.coords = oldLocation;
+        return a
+    }
+
+    populateBoard(){
+        const list = {};
+        let keyCounter = 1;
+        let y = 1;
+        for (; y <= 8; y++){
+            let x = 1;
+            if(!list[keyCounter]) list[keyCounter] = [];
+            while(x <= 8){
+                const coords = [x,y];
+                list[keyCounter] = {
+                    location: coords,
+                    adjacencies: this.exploreAxis(coords)
+                };
+                x++
+                keyCounter++
+            }
+        }
+        console.log(list)
+        return list
     }
 }
 
-const first = new Knight([4,4]);
-first.exploreX();
-first.exploreY()
+class Movement{
+    constructor(){
+
+    }
+}
+
+const first = new Knight([7,4]);
+first.populateBoard()
