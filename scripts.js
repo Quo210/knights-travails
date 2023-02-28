@@ -219,6 +219,8 @@ class Knight {
         
     };
     pathFinder(start,end){
+
+        try {
         this.steps++;
         this.tracker.route.push(start.toString())
         if(start == undefined || end == undefined ) {
@@ -268,10 +270,18 @@ class Knight {
                     return this.pathFinder(fArr.find(end), end)
                 }
             });
-            console.log('Recursive Call Initiating')
-            return this.pathFinder(sorted[0], end)
+            if (sorted.length == 0){
+                console.error('Ran out of tries.')
+                return false
+            } else {
+                console.log('Recursive Call Initiating')
+                return this.pathFinder(sorted[0], end)
+            }
+            
         }
-
+        } catch (error) {
+            console.error(error)
+        }
     };
 }
 
@@ -283,5 +293,5 @@ class Movement{
 
 const first = new Knight([1,1]);
 console.log(
-first.pathFinder([1,1],[4,3])
+first.pathFinder([1,3],[4,3])
 )
