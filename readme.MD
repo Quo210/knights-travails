@@ -3,3 +3,6 @@ Found some progress with the overall exercise by doing the original Knight's Tou
 Next step:
 
 Refine the function to be just a Knight's Tour. Then Think on how to apply the new learned concepts into my own problem.
+
+1. Rework exploreX/Y to release it from Knight's properties []
+2. Refine exploreAxis to release it from Knight properties  []

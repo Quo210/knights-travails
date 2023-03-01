@@ -13,50 +13,43 @@ class Board {
 class Knight {
     constructor(location = [0,0], board){
         {
-            let playBoard;
-            (!board)? playBoard = new Board() : board;
-
             this.coords = location; // [x,y]
             this.x = this.coords[0]
             this.y = this.coords[1]
-            this.board = playBoard;
+            this.board = [8,8];
             this.steps = 0;
             this.tracker = {
                 route: [],
                 visited: []
             }
-
-            this.board.knights.push(this)
         }
         console.log(
             'A new Knight has entered the board!',
-            this.board,
             `Currently located at X:${this.x} Y:${this.y}`
         )
     }
 
-    exploreX(yPos){
+    exploreX(coordinates,secondMove = false){//coordinates is expected to be an array with 2 numbers, in a format of [x,y] coordinates
         let [left,right] = [undefined];
+        let steps = 2;
+        const x = coordinates[0];
         const viable = {
             left: null,
             right: null,
         };
-        if(yPos){
-            left = this.x - 1;
-            right = this.x + 1;
-        } else {
-            left = this.x - 2;
-            right = this.x + 2;
-        }
+        if(secondMove) steps = 1;
+
+        left = x - steps;
+        right = x + steps;
         
         if(left >= 1) viable.left = left;
         if(right <= 8) viable.right = right;
 
-        if(yPos){
+        if(secondMove){
             return viable
         }
 
-        const yViable = this.exploreY(true);
+        const yViable = this.exploreY(coordinates, true);
         
         const knightMovement = [];
         for (let i = 0; i < 2; i++){
@@ -78,28 +71,24 @@ class Knight {
 
     }
 
-    exploreY(xPos){
+    exploreY(coordinates, secondMove = false){
         let [down,up] = [undefined];
+        let steps = 2;
+        const y = coordinates[1];
         const viable = {
             down: null,
             up: null
         };
-        if(xPos){
-            down = this.y - 1;
-            up = this.y + 1;
-        } else {
-            down = this.y - 2;
-            up = this.y + 2;
-        }
+        if(secondMove) steps = 1;
+        down = y - steps;
+        up = y + steps;
         
         if(down >= 1) viable.down = down;
         if(up <= 8) viable.up = up;
 
-        if(xPos){
-            return viable
-        }
+        if(secondMove) return viable;
 
-        const xViable = this.exploreX(true);
+        const xViable = this.exploreX(coordinates, true);
 
         const knightMovement = [];
         for (let i = 0; i < 2; i++){
@@ -139,7 +128,13 @@ class Knight {
         this.sortVisited()
         console.log('Tracker Status', this.tracker)
         return a
-    };
+    };// This version is reliant on the coordinates of the Knight and uses its properties for execution
+    predictMoves(coordinates){
+        let a = this.exploreX(coordinates);
+        const b = this.exploreY(coordinates);
+        a = a.concat(b).sort((a,b) => a[0] - b[0]);
+        return a
+    }
     sortVisited(){
         const zeroSort = this.tracker.visited.sort((a,b) => {
             const f = a.split(',').map(num => parseInt(num));//first
@@ -293,5 +288,5 @@ class Movement{
 
 const first = new Knight([1,1]);
 console.log(
-first.pathFinder([1,3],[4,3])
+first.predictMoves([4,4])
 )
