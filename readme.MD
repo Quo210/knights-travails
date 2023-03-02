@@ -4,5 +4,7 @@ Next step:
 
 Refine the function to be just a Knight's Tour. Then Think on how to apply the new learned concepts into my own problem.
 
-1. Rework exploreX/Y to release it from Knight's properties []
-2. Refine exploreAxis to release it from Knight properties  []
+1. Rework exploreX/Y to release it from Knight's properties [X]
+2. Refine exploreAxis to release it from Knight properties  [X]
+3. Rework pathfinder function because current one is a mess []
+3.1 Use proper naming when naming things. []
