@@ -195,6 +195,11 @@ class Knight {
 
 
 class BetterKnight extends Knight{
+    stringifyArrayOfCoordinates(array){// turns [[1,2],[1,3]] into ['1,2','1,3'];
+        return array.map(coordinate => `${coordinate[0]},${coordinate[1]}`)
+    }
+
+
     createAdjList(){//Creates a list of adjacencies, as the chosen form to store a graph
         //It will contain all the possible moves for all the locations in a normal 8 * 8 board. This will be used later.
         const pointer = {
@@ -206,11 +211,11 @@ class BetterKnight extends Knight{
             const coordinate = `${pointer.x},${pointer.y}`;
             const parsedCoordinates = coordinate.split(',').map(str => parseInt(str));
             let ongoingMoves = this.predictMoves(parsedCoordinates);
-            console.log(['On going moves:',ongoingMoves,'For',parsedCoordinates])
+            //console.log(['On going moves:',ongoingMoves,'For',parsedCoordinates])//A visual aid
 
             adjList[i] = {
                 coordinate,
-                moves: ongoingMoves
+                moves: this.stringifyArrayOfCoordinates(ongoingMoves)
             };// Create an entry into the list with a name of 1 to 64. Fill it with the corresponding coordinate and its possible moves, which are the adjacencies. 
 
             //and now adjust variables for the next cycle
