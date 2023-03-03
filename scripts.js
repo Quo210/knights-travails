@@ -282,6 +282,11 @@ class Knight {
     parsifyArraysOfStrings(bigArr){
         let arrayedStrings = bigArr.map(str => str.split(','));
         return arrayedStrings.map(array => array.map(str => parseInt(str)))
+    };
+    routeIntoString(){
+        let str = 'Start';
+        this.tracker.route.forEach(set => str+= ' -> ' + set.toString())
+        return str + ' | End'
     }
     findRoute(start,end){//Finds a route from a given initial position towards an end position
         if(!start || !end) return 'A value was undefined. Check for Errors';// if initial position or end position are missing, abort execution because it would throw an error on future code.
@@ -293,11 +298,12 @@ class Knight {
         
         const possibleMovesArr = this.predictMoves(start).map(move => move.toString());//Get an array with the coordinates to all locations to where we can move from start coordinates
 
-        const successfulRoute = ['Found a route: ',this.tracker];
+        const successfulRoute = () => [`Within ${this.steps} steps I found the goal:`,this.routeIntoString(), 'Method used: Brute Force/Knights Tour'];
 
         if(possibleMovesArr.includes(end.toString())){
+            this.steps++
             this.saveSort(end)
-            return successfulRoute
+            return successfulRoute()
         }//If end is found within the moves of start, return route
 
         //If not, begin exploring the moves of start's possible moves
@@ -310,8 +316,9 @@ class Knight {
         for (; index < ongoingPossibleMovesArr.length - 1; index++){
             if(ongoingPossibleMovesArr[0].includes(end.toString())){
                 this.saveSort(possibleMovesArr[index]);
+                this.steps++;
                 this.saveSort(end);
-                return successfulRoute
+                return successfulRoute()
             }
         };//Loop through the coordinates and if found, save the route
 
@@ -327,7 +334,7 @@ class Knight {
 
         let nextIndex = 0;
         let nextCoordinate = ongoingByLength[nextIndex].array;
-        while(!this.tracker.visited.includes(nextCoordinate)){
+        while(this.tracker.visited.includes(nextCoordinate.toString())){
             if(nextIndex >= ongoingByLength.length - 1) return 'Infinite Loop Error';
             nextIndex++;
             nextCoordinate = ongoingByLength[nextIndex].array;
@@ -336,16 +343,14 @@ class Knight {
 
         //return ;
 
-        console.log(start, possibleMovesArr, nextCoordinate)
+        console.log(start, '->', nextCoordinate)
         
         return this.findRoute(nextCoordinate, end)
     }
 }
 
-Array.prototype.str
-
 const first = new Knight([1,1]);
 console.log(
-first.findRoute([8,4],[8,1]),
+first.findRoute([8,8],[7,1]),
 //first.predictMoves([2,3])
 )
