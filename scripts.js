@@ -191,14 +191,20 @@ class Knight {
         
         return this.findRoute(nextCoordinate, end)//A recursive call using the unvisited move with the least future moves
     }
-};
+};//End of Class
 
 
 class BetterKnight extends Knight{
+
+    constructor(adjList = {}){
+        super(adjList);
+        this.adjList = this.createAdjList()
+    };
+
+
     stringifyArrayOfCoordinates(array){// turns [[1,2],[1,3]] into ['1,2','1,3'];
         return array.map(coordinate => `${coordinate[0]},${coordinate[1]}`)
     }
-
 
     createAdjList(){//Creates a list of adjacencies, as the chosen form to store a graph
         //It will contain all the possible moves for all the locations in a normal 8 * 8 board. This will be used later.
@@ -226,13 +232,36 @@ class BetterKnight extends Knight{
                 pointer.x++
             }
         }
+        return adjList //when done, return the list
+    };
 
-        return adjList
+    binarySearchAdjList(coordinate, list = this.adjList){//It is expecting a coordinate as a str inside an array ['1,1']
+        console.log([`List is a ${typeof list}`, list])
+        if(!coordinate) return 'Undefined Coordinate';
+        const parsedCoor = this.parsifyArraysOfStrings(coordinate)[0];//Switch back to integers
+        const array = (typeof list == 'object')? Array.from(Object.values(list)) : list; //Tree of Interest as an Array from AdjList
+        const middlePoint = Math.floor( array.length / 2 );
+        const pointer = array[middlePoint].coordinate;
+        const parsedPointer = this.parsifyArraysOfStrings([pointer])[0];
+        console.log(array, middlePoint, coordinate[0], parsedCoor, pointer, parsedPointer)
+        if(parsedPointer[1] < parsedCoor[1]){// y Definition
+            return this.binarySearchAdjList(coordinate, array.slice(0, middlePoint)) 
+        } else if (parsedPointer[1] > parsedCoor[1]){
+            return this.binarySearchAdjList(coordinate, array.slice(middlePoint + 1));
+        } else {
+            return array[middlePoint];
+        }
     }
-}
+
+    navigateRoute(start,end){
+
+    }
+
+
+};//End of Class
 
 
 const first = new BetterKnight([1,1]);
 console.log(
-first.createAdjList()
+first.binarySearchAdjList(['1,1'])
 )
