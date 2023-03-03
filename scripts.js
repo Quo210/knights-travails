@@ -54,8 +54,7 @@ class Knight {
 
         return xMovements
 
-    }
-
+    };
     exploreY(coordinates, secondMove = false){
         let [down,up] = [undefined];
         let steps = 2;
@@ -92,28 +91,7 @@ class Knight {
          })
  
          return yMovements
-    }
-
-    exploreAxis(root){
-        const oldLocation = this.coords;
-        if(root){
-            this.coords = root
-        } else {
-            this.coords = oldLocation;
-            root = oldLocation
-        }
-        this.x = root[0]
-        this.y = root[1]
-        let a = this.exploreX();
-        const b = this.exploreY()
-        a = a.concat(b).sort((a,b) => a[0] - b[0]);
-        this.coords = oldLocation;
-        let isRepeated = this.tracker.visited.includes(root.toString());
-        if(isRepeated == false) this.tracker.visited.push(root.toString());
-        this.sortVisited()
-        console.log('Tracker Status', this.tracker)
-        return a
-    };// This version is reliant on the coordinates of the Knight and uses its properties for execution. Ignoring for this branchg
+    };
     predictMoves(coordinates){
         let a = this.exploreX(coordinates);
         const b = this.exploreY(coordinates);
@@ -145,137 +123,6 @@ class Knight {
         });
         this.tracker.visited = oneSort;
     }
-    populateBoard(){
-        const list = {};
-        let keyCounter = 1;
-        let y = 1;
-        for (; y <= 8; y++){
-            let x = 1;
-            if(!list[keyCounter]) list[keyCounter] = [];
-            while(x <= 8){
-                const coords = [x,y];
-                list[keyCounter] = {
-                    location: coords,
-                    adjacencies: this.exploreAxis(coords)
-                };
-                x++
-                keyCounter++
-            }
-        }
-        console.log(list)
-        return list
-    };
-    findRoute(starting = [4,4],ending){
-        this.coords = starting; // update knight's position to the one passed
-        const macro = {
-            found: false,
-            route: null,
-            depth: null,
-            init: this.exploreAxis(starting, macro),
-            visited: [starting]
-        };
-        if(macro.init.includes(ending)) return 1;
-
-        macro.init.forEach(move => {
-            const micro = {
-                start: move,
-                depth: 1,
-                maxDepth: null,
-                route: [move],
-                best: [],
-                found: false
-            };
-            
-            while(depth < 10){
-                depth++
-                let moveSet = this.exploreAxis(micro.start, macro);
-                if(moveSet.includes(ending)) return [moveset, depth];
-                let childMoves = moveSet.map( move => {
-                    if (macro.visited.includes(move)) return [];
-                    return this.exploreAxis(move);
-                });
-                for (let i = 0; i < childMoves.length - 1; i++){
-                    if(childMoves[i].includes(ending)){
-
-                    }
-                }
-            }
-
-
-        })
-        
-    };
-    pathFinder(start,end){
-        try {
-        if(start == undefined || end == undefined ) {
-            console.log('A value was undefined, returning null')
-            return null;
-        }
-        this.steps++;
-        this.saveSort(start)
-        if(this.steps > 64){
-            console.error('Too long, stopping');
-            return null
-        }
-        let moves = this.predictMoves(start);
-        this.saveSort(start)
-        console.log('pathFinder Called: starting exploration for', start)
-        console.log('Predictions: ', moves)
-        let found;
-
-        const foundMatch = moves.map(arr => arr.toString()).includes(end.toString());
-        console.log('is the goal found within the current predictions? ',foundMatch)
-
-        if(foundMatch){
-            found = moves.filter(move => move.toString() == end.toString())[0];
-            console.log('Found it')
-            this.saveSort(end.toString())
-            return tracker
-        } else {
-            console.log(start,'Target not here, starting exploration')
-            let childrenMoves = moves.map(move =>{
-                let predictions = this.predictMoves(move);
-                console.log('For',move,'Predictions',predictions)
-                return predictions
-            });
-            console.log('current contents of childrenMoves:',childrenMoves)
-            console.log('STARTING: childrenMoves FILTER to remove visited ones')
-            let sortedByLength = [];
-            childrenMoves.forEach(moveArr => {
-                let filteredArrayOfMoves = moveArr.filter(xyNum => {
-                        const isRepeated = this.tracker.visited.includes(xyNum.toString());
-                        //console.log(xyNum,'is Repeated?', isRepeated)
-                        return (isRepeated)? false : true;
-                    }); // Filtered Array of Moves 
-                console.log(moveArr,'ARRAY FILTERED INTO',filteredArrayOfMoves)
-                const stringifiedFilterArray = filteredArrayOfMoves.map(arr => arr.toString());
-                console.log('Stringified: ', stringifiedFilterArray)
-                if(stringifiedFilterArray.includes(end.toString())) {
-                    console.log('A match was found', filteredArrayOfMoves);
-                    let position = childrenMoves.indexOf(moveArr);
-                    this.saveSort(moves[position])
-                    this.saveSort(end)
-                    this.tracker.found = true;
-                    return this.tracker
-                } else
-                sortedByLength.push( filteredArrayOfMoves.sort((a,b) => a.length - b.length) )
-                console.log('A match was not found, returning sortedByLength array of possible moves sortedByLength by number of on going moves', sortedByLength);
-            });
-            if(this.tracker.found == true) return ['Congratulations on finding a route', this.tracker];
-            if (sortedByLength.length == 0){
-                console.error('Dead end')
-                return false
-            } else {
-                let target = sortedByLength[0];
-                console.log('Recursive Call Initiating for: ',target)
-                return this.pathFinder(target, end)
-            }
-            
-        }
-        } catch (error) {
-            console.error(error)
-        }
-    };
     saveRoute(num){
         return this.tracker.route.push(num)
     };
@@ -289,16 +136,16 @@ class Knight {
         return str + ' | End'
     }
     findRoute(start,end){//Finds a route from a given initial position towards an end position
-        if(!start || !end) return 'A value was undefined. Check for Errors';// if initial position or end position are missing, abort execution because it would throw an error on future code.
+        if(!start || !end) return 'A value was undefined. Check for Errors';// if initial position or end position are missing, abort execution because it would throw an error down the line
         if(start == end) return 'A route finder is not necesary for this case.';
         if(this.steps > 64) return 'Should not take more than 64 steps';
 
         this.steps++; // Each execution of this function is a movement of the piece.
         this.saveSort(start);// Store the current coordinates into the 'visited' array
         
-        const possibleMovesArr = this.predictMoves(start).map(move => move.toString());//Get an array with the coordinates to all locations to where we can move from start coordinates
+        const possibleMovesArr = this.predictMoves(start).map(move => move.toString());//Get an array with the coordinates to all locations to where we can move from start coordinates. Stringify them for easy comparison
 
-        const successfulRoute = () => [`Within ${this.steps} steps I found the goal:`,this.routeIntoString(), 'Method used: Brute Force/Knights Tour'];
+        const successfulRoute = () => [`Within ${this.steps} steps I found the goal:`,this.routeIntoString(), 'Method used: Brute Force/Knights Tour'];//In a function form, this can be dynamically generated when requested, changed by all the code below
 
         if(possibleMovesArr.includes(end.toString())){
             this.steps++
@@ -311,7 +158,7 @@ class Knight {
             let parsedCoordinates = coordinates.split(',').map(str => parseInt(str));
             let ongoingMoves = this.predictMoves(parsedCoordinates);
             return ongoingMoves.map(arrayOfMoves => arrayOfMoves.toString())
-        });//An array that contains arrays with all the coordinates of the possible moves for the possible moves of start coordinates of this function call
+        });//An array that contains arrays with all the coordinates of the possible moves for the possible moves of starting coordinates for this function call. Read that again if necesary
         let index = 0; // To find the position of a potential route
         for (; index < ongoingPossibleMovesArr.length - 1; index++){
             if(ongoingPossibleMovesArr[0].includes(end.toString())){
@@ -329,23 +176,20 @@ class Knight {
                 array,
                 length: this.predictMoves(array).length
             }
-        })
-        .sort((a,b) => a.length - b.length);
+        })// Take an array of possible moves, and turn its contents into strings. Then map through it to return an object with the properties of the original coordinate and the number of possible moves it can make
+        .sort((a,b) => a.length - b.length);//Then sort these objects by the number of possible moves each can make
 
         let nextIndex = 0;
-        let nextCoordinate = ongoingByLength[nextIndex].array;
+        let nextCoordinate = ongoingByLength[nextIndex].array;//Points to the first (fewer possible moves) element of ongoingByLength array
         while(this.tracker.visited.includes(nextCoordinate.toString())){
             if(nextIndex >= ongoingByLength.length - 1) return 'Infinite Loop Error';
             nextIndex++;
             nextCoordinate = ongoingByLength[nextIndex].array;
-        }
+        };//While the selected coordinate can be found within the 'visited' array, reasign nextCoordinate to the next option. If running out of options, stop and return an error.
 
-
-        //return ;
-
-        console.log(start, '->', nextCoordinate)
+        console.log(start, '->', nextCoordinate)//A visual aid for the Dev
         
-        return this.findRoute(nextCoordinate, end)
+        return this.findRoute(nextCoordinate, end)//A recursive call using the unvisited move with the least future moves
     }
 }
 
