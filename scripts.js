@@ -191,10 +191,43 @@ class Knight {
         
         return this.findRoute(nextCoordinate, end)//A recursive call using the unvisited move with the least future moves
     }
+};
+
+
+class BetterKnight extends Knight{
+    createAdjList(){//Creates a list of adjacencies, as the chosen form to store a graph
+        //It will contain all the possible moves for all the locations in a normal 8 * 8 board. This will be used later.
+        const pointer = {
+            x: 1,
+            y: 1
+        };//1 as starter because I decided for the first position of each board axis to be 1 instead of 0, so the end is 8 and not 7. This is a personal preference and can be done with 0-7
+        const adjList = {};
+        for (let i = 1; i <= 64; i++){
+            const coordinate = `${pointer.x},${pointer.y}`;
+            const parsedCoordinates = coordinate.split(',').map(str => parseInt(str));
+            let ongoingMoves = this.predictMoves(parsedCoordinates);
+            console.log(['On going moves:',ongoingMoves,'For',parsedCoordinates])
+
+            adjList[i] = {
+                coordinate,
+                moves: ongoingMoves
+            };// Create an entry into the list with a name of 1 to 64. Fill it with the corresponding coordinate and its possible moves, which are the adjacencies. 
+
+            //and now adjust variables for the next cycle
+            if(pointer.x >= 8){
+                pointer.x = 1;
+                pointer.y++
+            } else {
+                pointer.x++
+            }
+        }
+
+        return adjList
+    }
 }
 
-const first = new Knight([1,1]);
+
+const first = new BetterKnight([1,1]);
 console.log(
-first.findRoute([8,8],[7,1]),
-//first.predictMoves([2,3])
+first.createAdjList()
 )
