@@ -238,27 +238,27 @@ class BetterKnight extends Knight{
     binarySearchAdjList(coordinate, list = this.adjList){//It is expecting a coordinate as a str inside an array ['1,1']
         console.log([`List is a ${typeof list}`, list])
         if(!coordinate) return 'Undefined Coordinate';
+
         const parsedCoor = this.parsifyArraysOfStrings(coordinate)[0];//Switch back to integers
         const array = (typeof list == 'object')? Array.from(Object.values(list)) : list; //Tree of Interest as an Array from AdjList
         const middlePoint = Math.floor( array.length / 2 );
         const pointer = array[middlePoint].coordinate;
         const parsedPointer = this.parsifyArraysOfStrings([pointer])[0];
-        console.log(array, middlePoint, coordinate[0], parsedCoor, pointer, parsedPointer)
-        if(parsedPointer[1] > parsedCoor[1]){// y Definition
+
+        if(parsedPointer[1] > parsedCoor[1]){//Refine until we are on the correct Y coordinate
             console.log(['Returning first half of tree'])
             return this.binarySearchAdjList(coordinate, array.slice(0, middlePoint)) 
         } else if (parsedPointer[1] < parsedCoor[1]){
             console.log(['Returning second half of tree'])
             return this.binarySearchAdjList(coordinate, array.slice(middlePoint + 1));
-        } else {//if on the correct Y coordinate, explore X
+        } else {//when on the correct Y coordinate, explore X
             if(parsedPointer[0] > parsedCoor[0]){
                 return this.binarySearchAdjList(coordinate, array.slice(0, middlePoint)) 
             } else if (parsedPointer[0] < parsedCoor[0]){
                 return this.binarySearchAdjList(coordinate, array.slice(middlePoint + 1));
-            } else {
+            } else {//Until sucessful, then return the node
                 return array[middlePoint]
             }
-            
         }
     }
 
