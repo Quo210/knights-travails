@@ -8,4 +8,10 @@ Refine the function to be just a Knight's Tour. Then Think on how to apply the n
 2. Refine exploreAxis to release it from Knight properties  [X]
 3. Rework pathfinder function because current one is a mess [x]
 3.1 Use proper naming when naming things. [x]
-4. Correct the infite loop error on the while check right before recursion happens in findRoute
+4. Correct the infite loop error on the while check right before recursion happens in findRoute [x]
+
+
+
+Next:
+
+1. Correct array identification problem (being confused with objects??) in new function

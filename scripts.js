@@ -244,12 +244,21 @@ class BetterKnight extends Knight{
         const pointer = array[middlePoint].coordinate;
         const parsedPointer = this.parsifyArraysOfStrings([pointer])[0];
         console.log(array, middlePoint, coordinate[0], parsedCoor, pointer, parsedPointer)
-        if(parsedPointer[1] < parsedCoor[1]){// y Definition
+        if(parsedPointer[1] > parsedCoor[1]){// y Definition
+            console.log(['Returning first half of tree'])
             return this.binarySearchAdjList(coordinate, array.slice(0, middlePoint)) 
-        } else if (parsedPointer[1] > parsedCoor[1]){
+        } else if (parsedPointer[1] < parsedCoor[1]){
+            console.log(['Returning second half of tree'])
             return this.binarySearchAdjList(coordinate, array.slice(middlePoint + 1));
-        } else {
-            return array[middlePoint];
+        } else {//if on the correct Y coordinate, explore X
+            if(parsedPointer[0] > parsedCoor[0]){
+                return this.binarySearchAdjList(coordinate, array.slice(0, middlePoint)) 
+            } else if (parsedPointer[0] < parsedCoor[0]){
+                return this.binarySearchAdjList(coordinate, array.slice(middlePoint + 1));
+            } else {
+                return array[middlePoint]
+            }
+            
         }
     }
 
@@ -263,5 +272,5 @@ class BetterKnight extends Knight{
 
 const first = new BetterKnight([1,1]);
 console.log(
-first.binarySearchAdjList(['1,1'])
+first.binarySearchAdjList(['6,5'])
 )
