@@ -1,16 +1,9 @@
 class Knight {
-    constructor(location = [0,0], board){
+    constructor(location = [0,0], board = [8,8]){
         {
             this.coords = location; // [x,y]
-            this.x = this.coords[0]
-            this.y = this.coords[1]
-            this.board = [8,8];
-            this.steps = 0;
-            this.tracker = {
-                route: [],
-                visited: [],
-                found: false
-            }
+            this.board;
+            this.steps = 6;// Expected max number of steps
         }
     }
 
@@ -92,7 +85,7 @@ class Knight {
  
          return yMovements
     };
-    predictMoves(coordinates){
+    predictMoves(coordinates){//Expecting an array that contains (2) integers as the coordinates of a chess board: [1,2]
         let a = this.exploreX(coordinates);
         const b = this.exploreY(coordinates);
         a = a.concat(b).sort((a,b) => a[0] - b[0]);
@@ -135,67 +128,10 @@ class Knight {
         this.tracker.route.forEach(set => str+= ' -> ' + set.toString())
         return str + ' | End'
     }
-    findRoute(start,end){//Finds a route from a given initial position towards an end position
-        if(!start || !end) return 'A value was undefined. Check for Errors';// if initial position or end position are missing, abort execution because it would throw an error down the line
-        if(start == end) return 'A route finder is not necesary for this case.';
-        if(this.steps > 64) return 'Should not take more than 64 steps';
-
-        this.steps++; // Each execution of this function is a movement of the piece.
-        this.saveSort(start);// Store the current coordinates into the 'visited' array
-        
-        const possibleMovesArr = this.predictMoves(start).map(move => move.toString());//Get an array with the coordinates to all locations to where we can move from start coordinates. Stringify them for easy comparison
-
-        const successfulRoute = () => [`Within ${this.steps} steps I found the goal:`,this.routeIntoString(), 'Method used: Brute Force/Knights Tour'];//In a function form, this can be dynamically generated when requested, changed by all the code below
-
-        if(possibleMovesArr.includes(end.toString())){
-            this.steps++
-            this.saveSort(end)
-            return successfulRoute()
-        }//If end is found within the moves of start, return route
-
-        //If not, begin exploring the moves of start's possible moves
-        const ongoingPossibleMovesArr = possibleMovesArr.map(coordinates =>{
-            let parsedCoordinates = coordinates.split(',').map(str => parseInt(str));
-            let ongoingMoves = this.predictMoves(parsedCoordinates);
-            return ongoingMoves.map(arrayOfMoves => arrayOfMoves.toString())
-        });//An array that contains arrays with all the coordinates of the possible moves for the possible moves of starting coordinates for this function call. Read that again if necesary
-        let index = 0; // To find the position of a potential route
-        for (; index < ongoingPossibleMovesArr.length - 1; index++){
-            if(ongoingPossibleMovesArr[0].includes(end.toString())){
-                this.saveSort(possibleMovesArr[index]);
-                this.steps++;
-                this.saveSort(end);
-                return successfulRoute()
-            }
-        };//Loop through the coordinates and if found, save the route
-
-        //if not found yet, select from the inmediate moves the one with the least possible ongoing moves
-        
-        const ongoingByLength = this.parsifyArraysOfStrings(possibleMovesArr).map(array => {
-            return {
-                array,
-                length: this.predictMoves(array).length
-            }
-        })// Take an array of possible moves, and turn its contents into strings. Then map through it to return an object with the properties of the original coordinate and the number of possible moves it can make
-        .sort((a,b) => a.length - b.length);//Then sort these objects by the number of possible moves each can make
-
-        let nextIndex = 0;
-        let nextCoordinate = ongoingByLength[nextIndex].array;//Points to the first (fewer possible moves) element of ongoingByLength array
-        while(this.tracker.visited.includes(nextCoordinate.toString())){
-            if(nextIndex >= ongoingByLength.length - 1) return 'Infinite Loop Error';
-            nextIndex++;
-            nextCoordinate = ongoingByLength[nextIndex].array;
-        };//While the selected coordinate can be found within the 'visited' array, reasign nextCoordinate to the next option. If running out of options, stop and return an error.
-
-        console.log(start, '->', nextCoordinate)//A visual aid for the Dev
-        
-        return this.findRoute(nextCoordinate, end)//A recursive call using the unvisited move with the least future moves
-    }
 };//End of Class
 
 
 class BetterKnight extends Knight{
-
     constructor(adjList = {}){
         super(adjList);
         this.adjList = this.createAdjList()
@@ -236,8 +172,8 @@ class BetterKnight extends Knight{
     };
 
     binarySearchAdjList(coordinate, list = this.adjList){//It is expecting a coordinate as a str inside an array ['1,1']
-        console.log([`List is a ${typeof list}`, list])
         if(!coordinate) return 'Undefined Coordinate';
+        if(typeof coordinate == 'string') coordinate = [coordinate];
 
         const parsedCoor = this.parsifyArraysOfStrings(coordinate)[0];//Switch back to integers
         const array = (typeof list == 'object')? Array.from(Object.values(list)) : list; //Tree of Interest as an Array from AdjList
@@ -246,10 +182,8 @@ class BetterKnight extends Knight{
         const parsedPointer = this.parsifyArraysOfStrings([pointer])[0];
 
         if(parsedPointer[1] > parsedCoor[1]){//Refine until we are on the correct Y coordinate
-            console.log(['Returning first half of tree'])
             return this.binarySearchAdjList(coordinate, array.slice(0, middlePoint)) 
         } else if (parsedPointer[1] < parsedCoor[1]){
-            console.log(['Returning second half of tree'])
             return this.binarySearchAdjList(coordinate, array.slice(middlePoint + 1));
         } else {//when on the correct Y coordinate, explore X
             if(parsedPointer[0] > parsedCoor[0]){
@@ -260,10 +194,43 @@ class BetterKnight extends Knight{
                 return array[middlePoint]
             }
         }
-    }
+    };
 
-    navigateRoute(start,end){
+    exploreMove(start,end, obj = { route: [], found: null }){//Expecting an array containing a string of coordinates: ['1,1']
+        if(!start || !end) return console.error('received an undefined parameter.');
+        const startingPos = this.binarySearchAdjList(start);//Get the Adjacencies of starting position
+        if(obj.route.length > this.steps) return obj;
+        obj.route.push(start[0])
+        if( startingPos.moves.includes(end[0]) ){
+            obj.route.push(end[0]);
+            obj.found = 1;
+            this.steps = (obj.route.length < this.steps)? obj.route.length : this.steps;
+            console.log(['Match found!', obj.route])
+            return obj;
+        };//if we find it here, return
+        //exploreGrandChildren
+        const grandChildren = {};
+        for (let i = 0; i < startingPos.moves.length - 1; i++){
+            let thisNum = startingPos.moves[i];
+            if(!obj.route.includes(thisNum)){
+                let tracker = JSON.parse(JSON.stringify(obj));
+                grandChildren[i] = this.exploreMove([thisNum], end, tracker);
+            } else {
+                obj.route.push()
+                grandChildren[i] = obj;
+            }
+        };
 
+        const shortestRoutes = Array.from( Object.values(grandChildren) )
+        .filter(obj => (obj.found == 1 && obj.route.length > 1)? true : false)
+        .sort( (a,b) => a.route.length - b.route.length);
+        
+        if(shortestRoutes.length > 0){
+            obj.route = shortestRoutes[0].route;
+            obj.found = 1;
+        }
+
+        return obj
     }
 
 
@@ -272,5 +239,5 @@ class BetterKnight extends Knight{
 
 const first = new BetterKnight([1,1]);
 console.log(
-first.binarySearchAdjList(['6,5'])
+first.exploreMove (['8,8'],['1,8'])
 )
